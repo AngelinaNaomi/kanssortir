@@ -9,25 +9,25 @@
 
 <body>
 
-    <div class="container">
+    <div class="container text-center">
         <h1>Kanssortir</h1>
     </div>
 
     <div class="container">
         <div class="row">
-            <div class="col-6">
+            <div class="col">
 
                 <h3>IN:</h3>
                 <input type="time" id="fin" value="08:00">
+                <button type="button" class="btn btn-primary" onclick="change()">Valider</button>
 
                 <h3>OUT :</h3>
                 <input type="time" id="fout" value="16:45" disabled>
 
-                <input type="button" value="Submit" onclick="change()">
 
             </div>
 
-            <div id='countdown' hidden=true class="col-4 text-md-right">
+            <div id='countdown' hidden=true class="col text-md-right">
                 <h3>Il faut patienter encore :</h3>
                 <h1 id="MyClockDisplay"></h1>
             </div>

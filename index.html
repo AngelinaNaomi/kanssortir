@@ -7,11 +7,13 @@
         const fin = (document.getElementById("fin").value).split(":");
         var timeIn = new Date();
         timeIn.setHours(parseInt(fin[0]) + 8, parseInt(fin[1]) + 45);
-        if (timeIn.getMinutes() < 10) {
-            const timeOut = timeIn.getHours() + ":0" + timeIn.getMinutes() timeIn.getMinutes();
-        } else {
-            const timeOut = timeIn.getHours() + ":" + timeIn.getMinutes();
-        }
+        var minutes ;
+		if (timeIn.getMinutes() < 10) {
+		minutes = "0" + timeIn.getMinutes();
+		} else {
+		minutes = timeIn.getMinutes();
+		}	
+        const timeOut = timeIn.getHours() + ":" + minutes
         document.getElementById("fout").innerText = timeOut
 
     }

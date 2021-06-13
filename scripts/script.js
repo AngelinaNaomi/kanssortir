@@ -20,20 +20,21 @@ window.addEventListener('load', function () {
  */
 function showTime() {
   const date = new Date();
+  const inputTime = getDateFromString(getInputTime());
   const outputTime = getDateFromString(getOutputTime());
-  const countdown = addTimeTo(outputTime, -date.getHours(), -date.getMinutes(), -(date.getSeconds() + 1));
+  const countdown = addTimeTo(outputTime, (inputTime > outputTime ? 24 : 0) - date.getHours(), -date.getMinutes(), -(date.getSeconds() + 1));
 
   const h = numberToStringFormatted(countdown.getHours());
   const m = numberToStringFormatted(countdown.getMinutes());
   const s = numberToStringFormatted(countdown.getSeconds());
 
-  const sameDay = date.getDate() === countdown.getDate();
+  const countdownIsOver = (date.getDate() - 1) === countdown.getDate();
 
-  const time = (!sameDay) ? "00:00:00" : h + ":" + m + ":" + s + " ";
+  const time = (countdownIsOver) ? "00:00:00" : h + ":" + m + ":" + s + " ";
   document.getElementById("MyClockDisplay").innerText = time;
   document.getElementById("MyClockDisplay").textContent = time;
 
-  if (sameDay) {
+  if (!countdownIsOver) {
     const timeoutId = getTimeoutId();
     if(timeoutId) clearTimeout(getTimeoutId());
     setTimeoutId(setTimeout(showTime, 1000));
@@ -139,7 +140,9 @@ function numberToStringFormatted(number) {
  * @param {number} second secondes à ajouter, par defaut 0
  */
 function addTimeTo(date, hours, minutes, second = 0) {
-  return new Date(date.getYear(), date.getMonth(), date.getDate(), date.getHours() + hours, date.getMinutes() + minutes, date.getSeconds() + second);
+  const res = new Date(date);
+  res.setHours(date.getHours() + hours, date.getMinutes() + minutes, date.getSeconds() + second);
+  return res;
 }
 
 /**

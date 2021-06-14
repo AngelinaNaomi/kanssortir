@@ -3,11 +3,16 @@
 
 <head>
     <title>Kanssortir</title>
-    <script src="scripts/script.js"></script>
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <script src="./scripts/script.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="scripts/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Paramètres
+    </button>
 
     <div class="container text-center">
         <h1>Kanssortir</h1>
@@ -24,7 +29,6 @@
                 <h3>OUT :</h3>
                 <input type="time" id="outputTime" value="15:45" disabled>
 
-
             </div>
 
             <div id='countdown' hidden=true class="col text-md-right">
@@ -35,6 +39,28 @@
     </div>
 
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Paramètres</h5>
+                    <button type="button" class="btn" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <h6>Temps de Travail:</h6>
+                    <input type="time" id="workingDuration" value="08:00">
+    
+                    <h6>Temps de Pause :</h6>
+                    <input type="time" id="breakDuration" value="00:45">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cancelSettings()">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Sauvegarder et Appliquer</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

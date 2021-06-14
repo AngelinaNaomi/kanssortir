@@ -7,12 +7,30 @@ window.addEventListener('load', function () {
       }
     });
   }
-  const cookieTime = getCookie('time');
-  if (cookieTime) {
-    setInputTime(cookieTime);
-    setOutputTime(addTimeTo(getDateFromString(cookieTime), 8, 45));
-  }
+  init();
 });
+
+
+
+function init() {
+  const cookieTime = getCookie('time');
+  const time = (cookieTime) ? cookieTime : "07:00";
+  const cookiewd = getCookie('workingDuration');
+  const cookiebd = getCookie('breakDuration');
+  
+  const workingDuration = splitTime((cookiewd) ? cookiewd : "08:00");  
+  const breakDuration = splitTime((cookiebd) ? cookiebd : "00:45"); 
+  
+  const hoursToAdd = workingDuration.hours + breakDuration.hours;
+  const minutesToAdd = workingDuration.minutes + breakDuration.minutes;
+
+  if (time) {
+    setInputTime(time);
+    setBreakDuration((cookiebd) ? cookiebd : "00:45");
+    setWorkingDuration((cookiewd) ? cookiewd : "08:00");
+    setOutputTime(addTimeTo(parseDateToString(time), hoursToAdd, minutesToAdd));
+  }
+}
 
 /**
  * Met à jour le compte à rebourd 
@@ -20,8 +38,8 @@ window.addEventListener('load', function () {
  */
 function showTime() {
   const date = new Date();
-  const inputTime = getDateFromString(getInputTime());
-  const outputTime = getDateFromString(getOutputTime());
+  const inputTime = parseDateToString(getInputTime());
+  const outputTime = parseDateToString(getOutputTime());
   const countdown = addTimeTo(outputTime, (inputTime > outputTime ? 24 : 0) - date.getHours(), -date.getMinutes(), -(date.getSeconds() + 1));
 
   const h = numberToStringFormatted(countdown.getHours());
@@ -62,40 +80,48 @@ function spawnNotification() {
  */
 function change() {
   const timeFromInput = getInputTime();
-  setCookie('time', timeFromInput, 7);
-  const dateOut = addTimeTo(getDateFromString(timeFromInput), 8, 45);
+  setCookie('time', timeFromInput);
+  
+  const workingDuration = splitTime(getWorkingDuration());  
+  const breakDuration = splitTime(getBreakDuration()); 
+  
+  const hoursToAdd = workingDuration.hours + breakDuration.hours;
+  const minutesToAdd = workingDuration.minutes + breakDuration.minutes;
+
+  const dateOut = addTimeTo(parseDateToString(timeFromInput), hoursToAdd, minutesToAdd);
   setOutputTime(dateOut);
+
   showTime();
   document.getElementById("countdown").hidden = false;
 }
 
 /**
- * @returns {String} Heure Output au format "hh:mm"
+ * Met à jour le temps de travail
  */
-function getOutputTime() {
-  return document.getElementById("outputTime").value;
+function changeWorkingDuration() {
+  const duration = getWorkingDuration();
+  setCookie('workingDuration', duration);
 }
 
 /**
- * @param {String} dateOut Valeur à set
+ * Met à jour le temps de pause
  */
-function setOutputTime(dateOut) {
-  document.getElementById("outputTime").value = dateToTimeString(dateOut);
+function changeBreakDuration() {
+  const duration = getBreakDuration();
+  setCookie('breakDuration', duration);
 }
 
-/**
- * @returns {String} la value contenu dans l'input sous forme "hh:mm"
- */
-function getInputTime() {
-  return document.getElementById("inputTime").value;
+function saveSettings() {
+  changeBreakDuration();
+  changeWorkingDuration();
+  change();
 }
 
-/**
- * Met à jour l'input
- * @param {String} value Nouvelle Value de forme "hh:mm"
- */
-function setInputTime(value) {
-  document.getElementById("inputTime").value = value;
+function cancelSettings() {
+  const cookiewd = getCookie('workingDuration');
+  const cookiebd = getCookie('breakDuration');
+  setBreakDuration((cookiebd) ? cookiebd : "00:45");
+  setWorkingDuration((cookiewd) ? cookiewd : "08:00");
 }
 
 /**
@@ -103,7 +129,7 @@ function setInputTime(value) {
  * @param {String} time Heure au format "HH:MM" 
  * @returns Date à la date du jour avec l'heure à time
  */
-function getDateFromString(time) {
+function parseDateToString(time) {
   const timeSplitted = splitTime(time);
   const date = new Date();
   date.setHours(timeSplitted.hours, timeSplitted.minutes, 0);
@@ -152,16 +178,73 @@ function addTimeTo(date, hours, minutes, second = 0) {
 function dateToTimeString(date) {
   return numberToStringFormatted(date.getHours()) + ":" + numberToStringFormatted(date.getMinutes());
 }
+/**
+ * @returns {String} workingDuration au format "hh:mm"
+ */
+ function getWorkingDuration() {
+  return document.getElementById("workingDuration").value;
+}
+
+/**
+ * @param {String} workingDuration Valeur à set
+ */
+function setWorkingDuration(workingDuration) {
+  document.getElementById("workingDuration").value = workingDuration;
+}
+
+
+/**
+ * @returns {String} breakDuration au format "hh:mm"
+ */
+ function getBreakDuration() {
+  return document.getElementById("breakDuration").value;
+}
+
+/**
+ * @param {String} breakDuration Valeur à set
+ */
+function setBreakDuration(breakDuration) {
+  document.getElementById("breakDuration").value = breakDuration;
+}
+
+/**
+ * @returns {String} Heure Output au format "hh:mm"
+ */
+ function getOutputTime() {
+  return document.getElementById("outputTime").value;
+}
+
+/**
+ * @param {Date} dateOut Valeur à set
+ */
+function setOutputTime(dateOut) {
+  document.getElementById("outputTime").value = dateToTimeString(dateOut);
+}
+
+/**
+ * @returns {String} la value contenu dans l'input sous forme "hh:mm"
+ */
+function getInputTime() {
+  return document.getElementById("inputTime").value;
+}
+
+/**
+ * Met à jour l'input
+ * @param {String} value Nouvelle Value de forme "hh:mm"
+ */
+function setInputTime(value) {
+  document.getElementById("inputTime").value = value;
+}
 
 /**
  * Set a cookie
  * repris de https://www.w3schools.com/js/js_cookies.asp
  * @param {String} cname Nom du cookie
  * @param {any} cvalue valeur à set
- * @param {number} exdays Nombre de jour d'expiration du cookie
+ * @param {number} exdays Nombre de jour d'expiration du cookie (default = 7)
  * @returns cvalue
  */
-function setCookie(cname, cvalue, exdays) {
+function setCookie(cname, cvalue, exdays = 7) {
   const d = new Date();
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
   const expires = "expires=" + d.toUTCString();
@@ -173,7 +256,7 @@ function setCookie(cname, cvalue, exdays) {
  * Get a cookie
  * repris de https://www.w3schools.com/js/js_cookies.asp
  * @param {String} cname Nom du cookie
- * @returns Valeur du cookie (si cookie inexistant "07:00")
+ * @returns Valeur du cookie (si cookie inexistant null)
  */
 function getCookie(cname) {
   const name = cname + "=";
@@ -188,13 +271,13 @@ function getCookie(cname) {
       return c.substring(name.length, c.length);
     }
   }
-  return "07:00";
+  return null;
 }
 
 /**
  * @returns Id du dernier setTimeout
  */
-function getTimeoutId() {
+ function getTimeoutId() {
   return sessionStorage.getItem('kanssortir_timeoutId');
 }
 

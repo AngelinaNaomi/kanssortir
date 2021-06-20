@@ -10,9 +10,18 @@ window.addEventListener('load', function () {
   init();
 });
 
+function enableButton() {
+  const regex = /^[0-9]+:[0-9]{2}$/;
+  document.getElementById("paraForm").classList.add('was-validated');
+  const workingDuration = getWorkingDuration();
+  const breakDuration = getBreakDuration();
+  document.getElementById('bSaveAndApply').disabled = !(regex.test(workingDuration) && regex.test(breakDuration));
+}
 
 
 function init() {
+  const now = new Date() 
+
   const cookieTime = getCookie('time');
   const time = (cookieTime) ? cookieTime : "07:00";
   const cookiewd = getCookie('workingDuration');
@@ -25,10 +34,18 @@ function init() {
   const minutesToAdd = workingDuration.minutes + breakDuration.minutes;
 
   if (time) {
+    const timeParsed = parseTimeStringToDate(time);
+    if(time > now){
+      timeParsed.setDate(timeParsed.getDate() - 1);
+    }
+    const outputDate = addTimeTo(timeParsed, hoursToAdd, minutesToAdd);
+
     setInputTime(time);
     setBreakDuration((cookiebd) ? cookiebd : "00:45");
     setWorkingDuration((cookiewd) ? cookiewd : "08:00");
-    setOutputTime(addTimeTo(parseDateToString(time), hoursToAdd, minutesToAdd));
+    setOutputTime(outputDate);
+    setInputDate(dateToDateString(timeParsed));
+    setOutputDate(dateToDateString(outputDate));
   }
 }
 
@@ -37,20 +54,22 @@ function init() {
  * et envoie une notification
  */
 function showTime() {
-  const date = new Date();
-  const inputTime = parseDateToString(getInputTime());
-  const outputTime = parseDateToString(getOutputTime());
-  const countdown = addTimeTo(outputTime, (inputTime > outputTime ? 24 : 0) - date.getHours(), -date.getMinutes(), -(date.getSeconds() + 1));
+  const now = new Date();
+  const inputTime = parseDateTimeStringToDate(getInputDate(), getInputTime());
+  const outputTime = parseDateTimeStringToDate(getOutputDate(), getOutputTime());
+  const countdown = addTimeTo(outputTime, - now.getHours(), -now.getMinutes(), -(now.getSeconds() + 1));
 
   const h = numberToStringFormatted(countdown.getHours());
   const m = numberToStringFormatted(countdown.getMinutes());
   const s = numberToStringFormatted(countdown.getSeconds());
 
-  const countdownIsOver = (date.getDate() - 1) === countdown.getDate();
+  const countdownIsOver = now > outputTime;
+  const numberDaysBeatween = daysBetween(now, outputTime);
+  const daysBetweenString = (numberDaysBeatween !== 0) ? (numberToStringFormatted(numberDaysBeatween) + ":") : "";
 
-  const time = (countdownIsOver) ? "00:00:00" : h + ":" + m + ":" + s + " ";
-  document.getElementById("MyClockDisplay").innerText = time;
-  document.getElementById("MyClockDisplay").textContent = time;
+  const clock = daysBetweenString + ((countdownIsOver) ? "00:00:00" : h + ":" + m + ":" + s + " ");
+  document.getElementById("MyClockDisplay").innerText = clock;
+  document.getElementById("MyClockDisplay").textContent = clock;
 
   if (!countdownIsOver) {
     const timeoutId = getTimeoutId();
@@ -58,6 +77,18 @@ function showTime() {
     setTimeoutId(setTimeout(showTime, 1000));
   }
   else spawnNotification();
+}
+
+/**
+ * Calcule le nombre de jour entre date1 et date2
+ * @param {Date} date1 
+ * @param {Date} date2 
+ * @returns {number} Nombre de jour entre date1 et date2
+ */
+function daysBetween(date1, date2) {
+  const delta = Math.abs(date1.getTime() - date2.getTime());
+  const coef = (1000 * 60 * 60 * 24);
+  return Math.floor(delta / coef);
 }
 
 /**
@@ -80,6 +111,7 @@ function spawnNotification() {
  */
 function change() {
   const timeFromInput = getInputTime();
+  const dateFromInput = getInputDate();
   setCookie('time', timeFromInput);
   
   const workingDuration = splitTime(getWorkingDuration());  
@@ -88,8 +120,9 @@ function change() {
   const hoursToAdd = workingDuration.hours + breakDuration.hours;
   const minutesToAdd = workingDuration.minutes + breakDuration.minutes;
 
-  const dateOut = addTimeTo(parseDateToString(timeFromInput), hoursToAdd, minutesToAdd);
+  const dateOut = addTimeTo(parseDateTimeStringToDate(dateFromInput, timeFromInput), hoursToAdd, minutesToAdd);
   setOutputTime(dateOut);
+  setOutputDate(dateToDateString(dateOut));
 
   showTime();
   document.getElementById("countdown").hidden = false;
@@ -112,12 +145,15 @@ function changeBreakDuration() {
 }
 
 function saveSettings() {
+  document.getElementById("paraForm").classList.remove('was-validated');
+  console.log('Je suis un easter-egg ! Teehee ~ uwu')
   changeBreakDuration();
   changeWorkingDuration();
   change();
 }
 
 function cancelSettings() {
+  document.getElementById("paraForm").classList.remove('was-validated');
   const cookiewd = getCookie('workingDuration');
   const cookiebd = getCookie('breakDuration');
   setBreakDuration((cookiebd) ? cookiebd : "00:45");
@@ -129,7 +165,7 @@ function cancelSettings() {
  * @param {String} time Heure au format "HH:MM" 
  * @returns Date à la date du jour avec l'heure à time
  */
-function parseDateToString(time) {
+ function parseTimeStringToDate(time) {
   const timeSplitted = splitTime(time);
   const date = new Date();
   date.setHours(timeSplitted.hours, timeSplitted.minutes, 0);
@@ -137,11 +173,21 @@ function parseDateToString(time) {
 }
 
 /**
+ * 
+ * @param {String} date Heure au format "yyyy-mm-dd" 
+ * @param {String} time Heure au format "HH:MM" 
+ * @returns Date à la date du jour avec l'heure à time
+ */
+function parseDateTimeStringToDate(date, time) {
+  return new Date(date+"T"+time);
+}
+
+/**
  * Crée un objet {hours: number, minutes: number}
  * @param {String} time Heure au format "hh:mm" 
  * @returns l'heure dans un objet
  */
-function splitTime(time) {
+ function splitTime(time) {
   const timeSplitted = time.split(":");
   return {
     hours: parseInt(timeSplitted[0]),
@@ -150,11 +196,25 @@ function splitTime(time) {
 }
 
 /**
+ * Crée un objet {day: number, month: number, year: number}
+ * @param {String} date Date au format "yyyy-mm-dd" 
+ * @returns la date dans un objet
+ */
+function splitDate(date) {
+  const timeSplitted = date.split("-");
+  return {
+    year: parseInt(timeSplitted[0]),
+    month: parseInt(timeSplitted[1]),
+    day: parseInt(timeSplitted[2])
+  };
+}
+
+/**
  * Formate un nombre pou avoir toujours le chiffre des dizaines.
  * @param {number} number Nombre à formatter
  * @returns Le nombre formatté
  */
-function numberToStringFormatted(number) {
+ function numberToStringFormatted(number) {
   return ((number < 10) ? "0" : "") + number;
 }
 
@@ -175,9 +235,26 @@ function addTimeTo(date, hours, minutes, second = 0) {
  * @param {Date} date Date à parser
  * @returns La Date au format "hh:mm"
  */
-function dateToTimeString(date) {
+ function dateToTimeString(date) {
   return numberToStringFormatted(date.getHours()) + ":" + numberToStringFormatted(date.getMinutes());
 }
+
+/**
+ * @param {Date} date Date à parser
+ * @returns La Date au format "yyyy-mm-dd"
+ */
+ function dateToDateString(date) {
+  return numberToStringFormatted(numberToStringFormatted(date.getFullYear()) + "-" + numberToStringFormatted(date.getMonth() + 1) + "-" + date.getDate());
+}
+
+
+//////////////////////////////////
+//                              //
+//           GET/SET            //
+//                              //
+//////////////////////////////////
+
+
 /**
  * @returns {String} workingDuration au format "hh:mm"
  */
@@ -288,4 +365,38 @@ function getCookie(cname) {
 function setTimeoutId(timeoutId) {
   sessionStorage.setItem('kanssortir_timeoutId', timeoutId);
   return timeoutId;
+}
+
+
+
+/**
+ * @returns {String} la value contenu dans l'input sous forme "yyyy-mm-dd"
+ */
+ function getInputDate() {
+  return document.getElementById("inputDate").value;
+}
+
+/**
+ * Met à jour l'input
+ * @param {String} value Nouvelle Value de forme "yyyy-mm-dd"
+ */
+function setInputDate(value) {
+  document.getElementById("inputDate").value = value;
+}
+
+
+
+/**
+ * @returns {String} la value contenu dans l'output sous forme "yyyy-mm-dd"
+ */
+ function getOutputDate() {
+  return document.getElementById("outputDate").value;
+}
+
+/**
+ * Met à jour l'output
+ * @param {String} value Nouvelle Value de forme "yyyy-mm-dd"
+ */
+function setOutputDate(value) {
+  document.getElementById("outputDate").value = value;
 }

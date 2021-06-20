@@ -3,60 +3,80 @@
 
 <head>
     <title>Kanssortir</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="./scripts/script.js"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="scripts/bootstrap.bundle.min.js"></script>
+    <link href="css/myTheme.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="image/kanssortir-logo.png" />
 </head>
 
 <body>
-    <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
         Paramètres
     </button>
 
     <div class="container text-center">
-        <h1>Kanssortir</h1>
+        <img src="image/kanssortir-banner.png" class="img-ksr" />
     </div>
 
     <div class="container">
-        <div class="row">
-            <div class="col">
+        <div class="container-ksr">
+            <div class="column-ksr-sm mb-5 text-xl-start text-center">
 
                 <h3>IN:</h3>
-                <input type="time" id="inputTime" value="07:00" onchange="change()">
-                <button type="button" class="btn btn-primary" onclick="change()">Valider</button>
+                <div class="input-group input-group-xl mb-4">
+                    <input type="date" class="form-control" id="inputDate">
+                    <input type="time" class="form-control" id="inputTime" value="07:00" onchange="change()">
+                    <button type="button" class="btn btn-outline-primary" onclick="change()">Valider</button>
+                </div>
 
                 <h3>OUT :</h3>
-                <input type="time" id="outputTime" value="15:45" disabled>
+                <div class="input-group input-group-xl mb-4">
+                    <input type="date" class="form-control" id="outputDate" disabled>
+                    <input type="time" class="form-control form-control-xl" id="outputTime" value="15:45" disabled>
+                </div>
 
             </div>
 
-            <div id='countdown' hidden=true class="col text-md-right">
-                <h3>Il faut patienter encore :</h3>
-                <h1 id="MyClockDisplay"></h1>
+            <div class="column-ksr-lg">
+                <div id='countdown' hidden=true class="text-xl-end text-center">
+                    <h3>Il faut patienter encore :</h3>
+                    <h1 id="MyClockDisplay"></h1>
+                </div>
             </div>
         </div>
     </div>
 
 
-    <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Paramètres</h5>
                     <button type="button" class="btn" data-bs-dismiss="modal" aria-label="Close">X</button>
                 </div>
                 <div class="modal-body">
-                    <h6>Temps de Travail:</h6>
-                    <input type="time" id="workingDuration" value="08:00">
-    
-                    <h6>Temps de Pause :</h6>
-                    <input type="time" id="breakDuration" value="00:45">
+                    <form id="paraForm" class="container g-3 needs-validation" novalidate>
+
+                        <div class="input-group input-group-xl mb-2">
+                            <span class="input-group-text">Temps de Travail</span>
+                            <input type="text" class="form-control" id="workingDuration" value="08:00"
+                                oninput="enableButton()" pattern="[0-9]+:[0-9]{2}" required>
+                        </div>
+
+                        <div class="input-group input-group-xl mb-2">
+                            <span class="input-group-text">Temps de Pause</span>
+                            <input type="text" class="form-control" id="breakDuration" value="00:45"
+                            oninput="enableButton()" pattern="[0-9]+:[0-9]{2}" required>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cancelSettings()">Annuler</button>
-                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Sauvegarder et Appliquer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                        onclick="cancelSettings()">Annuler</button>
+                    <button type="button" class="btn btn-primary" id="bSaveAndApply" onclick="saveSettings()">Sauvegarder et
+                        Appliquer</button>
                 </div>
             </div>
         </div>

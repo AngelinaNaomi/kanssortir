@@ -3,12 +3,15 @@
 
 <head>
     <title>Kanssortir</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="image/kanssortir-logo-small-256.png" />
+    <link rel="manifest" href="/manifest.json" />
     <script src="./scripts/script.js"></script>
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script src="scripts/bootstrap.bundle.min.js"></script>
     <link href="css/myTheme.css" rel="stylesheet">
     <link rel="icon" type="image/png" href="image/kanssortir-logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="purple" />
 </head>
 
 <body>
@@ -68,14 +71,15 @@
                         <div class="input-group input-group-xl mb-2">
                             <span class="input-group-text">Temps de Pause</span>
                             <input type="text" class="form-control" id="breakDuration" value="00:45"
-                            oninput="enableButton()" pattern="[0-9]+:[0-9]{2}" required>
+                                oninput="enableButton()" pattern="[0-9]+:[0-9]{2}" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                         onclick="cancelSettings()">Annuler</button>
-                    <button type="button" class="btn btn-primary" id="bSaveAndApply" onclick="saveSettings()">Sauvegarder et
+                    <button type="button" class="btn btn-primary" id="bSaveAndApply"
+                        onclick="saveSettings()">Sauvegarder et
                         Appliquer</button>
                 </div>
             </div>

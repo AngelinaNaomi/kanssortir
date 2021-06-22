@@ -1,0 +1,23 @@
+{
+    "name": "Kanssortir",
+    "short_name": "KSR",
+    "lang": "fr",
+    "icons": [
+        {
+          "src": "image/kanssortir-logo-small.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        },
+        {
+          "src": "image/kanssortir-logo-small-256.png",
+          "sizes": "256x256",
+          "type": "image/png",
+          "purpose": "any maskable"
+        }
+      ],
+    "theme_color": "#3c2f3d",
+    "background_color": "#3c2f3d",
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/index.html"
+  }

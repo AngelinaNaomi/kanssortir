@@ -1,4 +1,10 @@
-window.addEventListener('load', function () {
+window.onload = function () {
+  "use strict";
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+  }
+
   // Premièrement, vérifions que nous avons la permission de publier des notifications. Si ce n'est pas le cas, demandons la
   if (window.Notification && Notification.permission !== "granted") {
     Notification.requestPermission(function (status) {
@@ -8,7 +14,7 @@ window.addEventListener('load', function () {
     });
   }
   init();
-});
+};
 
 function enableButton() {
   const regex = /^[0-9]+:[0-9]{2}$/;

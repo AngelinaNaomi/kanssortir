@@ -1,4 +1,4 @@
-window.onload = function () {
+window.addEventListener("load", function () {
   "use strict";
 
   if ("serviceWorker" in navigator) {
@@ -14,7 +14,7 @@ window.onload = function () {
     });
   }
   init();
-};
+});
 
 function enableButton() {
   const regex = /^[0-9]+:[0-9]{2}$/;

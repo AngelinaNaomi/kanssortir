@@ -250,7 +250,7 @@ function addTimeTo(date, hours, minutes, second = 0) {
  * @returns La Date au format "yyyy-mm-dd"
  */
  function dateToDateString(date) {
-  return numberToStringFormatted(numberToStringFormatted(date.getFullYear()) + "-" + numberToStringFormatted(date.getMonth() + 1) + "-" + date.getDate());
+  return numberToStringFormatted(numberToStringFormatted(date.getFullYear()) + "-" + numberToStringFormatted(date.getMonth() + 1) + "-" +  numberToStringFormatted(date.getDate()));
 }
 
 
